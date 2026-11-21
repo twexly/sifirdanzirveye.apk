@@ -1,3 +1,18 @@
+// Canvas roundRect uyumluluk desteği
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
+
 // =========================================================================
 // SIFIRDAN ZİRVEYE 2D — HİKAYELİ TİCARET, HARAÇ, BASKIN VE ŞEHİR KONTROLÜ
 // =========================================================================
@@ -59,11 +74,11 @@ const MANAGERS = [
 ];
 
 const QUESTS = [
-  { id: 'q1', text: 'Köşe Başı Büfe'yi Seviye 2 yap.', reward: 12000, check: s => s.districts[0].plots[0].level >= 2 },
-  { id: 'q2', text: 'Liman Fırını'nı satın alarak 2 dükkâna ulaş.', reward: 22000, check: s => countPlayerShops(s) >= 2 },
+  { id: 'q1', text: "Köşe Başı Büfe'yi Seviye 2 yap.", reward: 12000, check: s => s.districts[0].plots[0].level >= 2 },
+  { id: 'q2', text: "Liman Fırını'nı satın alarak 2 dükkâna ulaş.", reward: 22000, check: s => countPlayerShops(s) >= 2 },
   { id: 'q3', text: 'Ekip & Filo sekmesinden Gece Bekçisi al (Koruma 25+).', reward: 30000, check: s => getSecurityPower(s) >= 25 },
-  { id: 'q4', text: 'Yeni Güne Başla butonuyla Gün 3'e ulaş.', reward: 45000, check: s => s.day >= 3 },
-  { id: 'q5', text: 'Rakip elindeki Sahil Market'i satın al.', reward: 75000, check: s => s.districts[0].plots[2].owner === 'player' },
+  { id: 'q4', text: "Yeni Güne Başla butonuyla Gün 3'e ulaş.", reward: 45000, check: s => s.day >= 3 },
+  { id: 'q5', text: "Rakip elindeki Sahil Market'i satın al.", reward: 75000, check: s => s.districts[0].plots[2].owner === 'player' },
   { id: 'q6', text: 'Merkez Çarşı mahallesinin kilidini aç.', reward: 140000, check: s => s.unlockedDistricts.includes('carsi') },
   { id: 'q7', text: 'Şehir hakimiyetini %50 üzerine çıkar.', reward: 350000, check: s => getControlPct(s) >= 50 }
 ];
@@ -91,7 +106,7 @@ let state = {
   kemalDefeated: false,
   dailyEarned: 0,
   dailySpent: 0,
-  storyLogs: ['Gün 1: Liman Mahallesi'nde küçük bir büfe ile ticaret hayatına atıldın.'],
+  storyLogs: ["Gün 1: Liman Mahallesi'nde küçük bir büfe ile ticaret hayatına atıldın."],
   lastSaved: Date.now()
 };
 
@@ -793,7 +808,7 @@ function triggerRivalRaidEvent() {
   triggerEventModal({
     who: 'kuzey',
     badge: '🚨 GECE BASKINI!',
-    speaker: 'Kuzey Bey'in Adamları',
+    speaker: "Kuzey Bey'in Adamları",
     role: 'Rakip Sabotaj Ekibi',
     dialogue: `"Mahallede fiyat kırıp bizim müşterileri çalarsan bedelini ödersin! Adamlarımız şu an dükkânlarının kapısında!"`,
     choices: [

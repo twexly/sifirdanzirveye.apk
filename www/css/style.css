@@ -280,7 +280,7 @@ body {
 
 #cityCanvas {
   width: 100%;
-  height: 360px;
+  height: 320px;
   display: block;
   cursor: pointer;
 }
