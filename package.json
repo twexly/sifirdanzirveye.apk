@@ -1,7 +1,7 @@
 {
-  "name": "sifirdan-zirveye-apk",
-  "version": "1.0.0",
-  "description": "Sıfırdan Zirveye — Ticaret ve Şehir Kontrol Simülasyonu",
+  "name": "sifirdan-zirveye-2d",
+  "version": "2.0.0",
+  "description": "Sıfırdan Zirveye 2D — Hikayeli Ticaret, Haraç ve Şehir Kontrolü",
   "scripts": {
     "sync": "npx cap sync android",
     "android": "npx cap open android"

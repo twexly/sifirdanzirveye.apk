@@ -4,201 +4,210 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0b1224" />
-  <title>Sıfırdan Zirveye — Ticaret & Şehir Kontrolü</title>
+  <title>Sıfırdan Zirveye 2D — Ticaret & Şehir Kontrolü</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon-192.png" />
+  <link rel="icon" href="img/icon-192.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <!-- Üst Kaynak & Şehir Hakimiyeti Barı -->
+  <!-- ÜST DURUM PANELİ (SADE VE NET) -->
   <header class="top-hud">
-    <div class="hud-top-row">
-      <div class="brand-box">
-        <img src="logo.png" alt="Logo" class="app-logo" />
-        <div class="brand-text">
-          <span class="game-title">SIFIRDAN ZİRVEYE</span>
-          <span class="rank-badge" id="playerRank">Sokak Girişimcisi</span>
+    <div class="hud-row-1">
+      <div class="brand-wrap">
+        <img src="img/logo.png" alt="Logo" class="app-logo" />
+        <div>
+          <div class="day-pill">
+            <span id="dayDisplay">GÜN 1</span>
+            <span class="dot">•</span>
+            <span id="clockDisplay">09:00</span>
+          </div>
+          <div class="rank-text" id="playerRank">Sokak Girişimcisi</div>
         </div>
       </div>
 
-      <div class="hud-actions">
-        <button id="soundToggleBtn" class="icon-pill" title="Ses Efektleri">🔊</button>
-        <button id="offlineReportBtn" class="icon-pill gold-glow" title="Asistan Raporu">🤖</button>
+      <div class="hud-right-btns">
+        <button id="newDayBtn" class="new-day-btn">☀️ Yeni Güne Başla</button>
+        <button id="soundBtn" class="mini-icon-btn" title="Ses">🔊</button>
       </div>
     </div>
 
-    <div class="stats-strip">
-      <div class="stat-pill cash">
-        <span class="stat-label">NAKİT SERMAYE</span>
-        <span class="stat-val" id="cashDisplay">₺25.000</span>
+    <!-- 4 TEMEL GÖSTERGE -->
+    <div class="kpi-grid">
+      <div class="kpi-box cash">
+        <span class="kpi-lbl">NAKİT</span>
+        <strong class="kpi-val" id="cashDisplay">₺25.000</strong>
       </div>
-      <div class="stat-pill income">
-        <span class="stat-label">NET GELİR / SN</span>
-        <span class="stat-val" id="incomeDisplay">+₺120/sn</span>
+      <div class="kpi-box income">
+        <span class="kpi-lbl">GELİR</span>
+        <strong class="kpi-val" id="incomeDisplay">+₺150/sn</strong>
       </div>
-      <div class="stat-pill control">
-        <span class="stat-label">ŞEHİR KONTROLÜ</span>
-        <span class="stat-val" id="controlDisplay">%5</span>
+      <div class="kpi-box security">
+        <span class="kpi-lbl">KORUMA</span>
+        <strong class="kpi-val" id="securityDisplay">🛡️ 10</strong>
+      </div>
+      <div class="kpi-box respect">
+        <span class="kpi-lbl">SAYGINLIK</span>
+        <strong class="kpi-val" id="respectDisplay">⭐ 5</strong>
       </div>
     </div>
 
-    <!-- Şehir Hakimiyet Çubuğu (Oyuncu vs Rakipler) -->
-    <div class="dominance-bar-wrap" title="Şehir Bölge Dağılımı">
-      <div id="domPlayer" class="dom-seg player" style="width: 5%"></div>
-      <div id="domRival1" class="dom-seg rival1" style="width: 25%"></div>
-      <div id="domRival2" class="dom-seg rival2" style="width: 20%"></div>
-      <div id="domRival3" class="dom-seg rival3" style="width: 15%"></div>
-      <div id="domNeutral" class="dom-seg neutral" style="width: 35%"></div>
+    <!-- AKTİF HİKAYE GÖREVİ ÇUBUĞU -->
+    <div class="quest-banner" id="questBanner">
+      <div class="quest-left">
+        <span class="quest-tag">GÖREV</span>
+        <span id="questText">Köşe Başı Büfe'yi Seviye 2 yap.</span>
+      </div>
+      <button id="claimQuestBtn" class="quest-claim-btn hidden">Ödülü Al!</button>
     </div>
   </header>
 
-  <!-- Canlı Piyasa & Haber Bandı -->
-  <div class="ticker-bar">
-    <span class="ticker-tag">CANLI PİYASA</span>
-    <div class="ticker-scroll">
-      <span id="newsTickerText">Piyasa açıldı! İlk sokağındaki dükkânı büyüt ve rakiplerin fiyatını kırarak mahalleyi ele geçir.</span>
-    </div>
-  </div>
+  <!-- ANA EKRANLAR -->
+  <main class="main-area">
+    <!-- 1. SEKME: CANLI 2D ŞEHİR HARİTASI -->
+    <section id="tab-city" class="tab-panel active">
+      <!-- Mahalle Seçim Sekmeleri -->
+      <div class="district-bar" id="districtBar"></div>
 
-  <!-- Ana Oyun Ekranları (Sekmeli Mobil Görünüm) -->
-  <main class="viewport">
-    <!-- SEKME 1: İNTERAKTİF ŞEHİR HARİTASI -->
-    <section id="tab-map" class="tab-view active">
-      <div class="district-selector" id="districtTabs"></div>
-
-      <div class="district-banner" id="districtBanner">
-        <div>
-          <h2 id="distName">Liman Mahallesi</h2>
-          <p id="distDesc">Düşük kira, hızlı nakit akışı ve başlangıç ticareti.</p>
+      <!-- 2D İnteraktif Şehir Sahnesi -->
+      <div class="canvas-card">
+        <div class="canvas-top-overlay">
+          <span id="currentDistrictTitle" class="dist-badge">📍 Liman Mahallesi</span>
+          <span id="haracCountdownBadge" class="harac-badge">🎩 Kemal Abi: 2 gün sonra</span>
         </div>
-        <div class="dist-bonus-badge" id="distBonus">Talep: %100</div>
+        <canvas id="cityCanvas"></canvas>
+        <div class="canvas-hint">👆 Yönetmek veya satın almak için 2D haritadaki binalara dokun</div>
       </div>
 
-      <!-- Görsel Şehir Haritası & Lojistik Hatları -->
-      <div class="city-map-container">
-        <svg id="logisticsSvg" class="logistics-overlay"></svg>
-        <div id="cityGrid" class="city-grid"></div>
-      </div>
-
-      <!-- Rakip Şirketler Durum Özeti -->
-      <div class="rivals-card">
-        <div class="card-header">
-          <h3>🏢 Canlı Piyasa Rakipleri</h3>
-          <span class="sub-hint">Fiyat kırarak paylarını çal!</span>
+      <!-- Hızlı Haraç & Baskın Durum Özeti -->
+      <div class="status-strip-card">
+        <div class="status-item">
+          <span>🏙️ Şehir Hakimiyeti</span>
+          <strong id="cityControlPct">%6</strong>
         </div>
-        <div id="rivalsList" class="rivals-list"></div>
+        <div class="status-divider"></div>
+        <div class="status-item">
+          <span>🎩 Sıradaki Haraç</span>
+          <strong id="nextHaracAmount">₺8.000</strong>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-item">
+          <span>🚨 Baskın Riski</span>
+          <strong id="raidRiskText" class="risk-low">Düşük</strong>
+        </div>
       </div>
     </section>
 
-    <!-- SEKME 2: İŞLETMELERİM & FİYAT SAVAŞI -->
-    <section id="tab-business" class="tab-view">
-      <div class="section-header-card">
-        <div>
-          <h2>🏪 İşletme & Fiyat Kontrolü</h2>
-          <p>Fiyat stratejini belirle: Rakiplerin fiyatını kırıp müşteriyi kendine çek!</p>
-        </div>
-        <div class="global-strategy-btns">
-          <button class="strat-btn" data-global-strat="undercut">⚔️ Tümünde Fiyat Kır</button>
-          <button class="strat-btn" data-global-strat="balanced">⚖️ Dengeli Piyasa</button>
-        </div>
+    <!-- 2. SEKME: DÜKKÂNLARIM & FİYAT SAVAŞI -->
+    <section id="tab-shops" class="tab-panel">
+      <div class="panel-intro">
+        <h2>🏪 İşletmelerim & Fiyat Stratejisi</h2>
+        <p>Fiyat kırarak rakiplerin müşterisini çal veya koruma ekipmanı kur.</p>
       </div>
-
-      <div id="ownedShopsList" class="shops-list"></div>
+      <div id="shopsListContainer" class="cards-stack"></div>
     </section>
 
-    <!-- SEKME 3: DAĞITIM AĞI & LOJİSTİK -->
-    <section id="tab-logistics" class="tab-view">
-      <div class="section-header-card">
-        <div>
-          <h2>🚚 Dağıtım Ağı & Tedarik Zinciri</h2>
-          <p>Depo ve filo kurarak tüm dükkânlarının kâr marjını katla.</p>
-        </div>
-        <div class="logistics-multiplier-box">
-          <span>Ağ Çarpanı</span>
-          <strong id="logisticsMultDisplay">1.00x</strong>
-        </div>
+    <!-- 3. SEKME: LOJİSTİK, KORUMA & ASİSTANLAR -->
+    <section id="tab-upgrades" class="tab-panel">
+      <div class="panel-intro">
+        <h2>🚚 Lojistik Ağı & 🛡️ Koruma Ekibi</h2>
+        <p>Kamyon filosu gelirini katlar, korumalar baskınları ve haraççıları püskürtür.</p>
       </div>
 
-      <div id="logisticsUpgradesList" class="upgrades-list"></div>
+      <h3 class="group-title">🛡️ Güvenlik & Baskın Savunması</h3>
+      <div id="securityListContainer" class="cards-stack"></div>
+
+      <h3 class="group-title">🚚 Dağıtım Filosu & Depolar</h3>
+      <div id="logisticsListContainer" class="cards-stack"></div>
+
+      <h3 class="group-title">🤖 Otomatik Yönetici Asistanlar</h3>
+      <div id="managersListContainer" class="cards-stack"></div>
     </section>
 
-    <!-- SEKME 4: MAĞAZA, OTOMATİK ASİSTAN & ÖZEL HAKLAR -->
-    <section id="tab-store" class="tab-view">
-      <div class="section-header-card gold-border">
-        <div>
-          <h2>💎 Ticaret Merkezi & Özel İmtiyazlar</h2>
-          <p>Otomatik yönetici asistanlar, sermaye paketleri ve özel bölge lisansları.</p>
-        </div>
+    <!-- 4. SEKME: HİKAYE, REHBER & KARAKTERLER -->
+    <section id="tab-story" class="tab-panel">
+      <div class="panel-intro">
+        <h2>📖 Hikaye & Mahalle İlişkileri</h2>
+        <p>Sokaktan başlayıp şehrin tek hakimi olma yolculuğun.</p>
       </div>
 
-      <div class="store-category">
-        <h3>🤖 Otomatik Yönetici Botları (Çevrimdışı Kazanç)</h3>
-        <div id="managersList" class="upgrades-list"></div>
-      </div>
+      <div id="charactersContainer" class="cards-stack"></div>
 
-      <div class="store-category">
-        <h3>🗺️ Özel Şehir Haritası Hakları & İmtiyazlar</h3>
-        <div id="licensesList" class="upgrades-list"></div>
-      </div>
-
-      <div class="store-category">
-        <h3>💰 Başlangıç & Büyüme Sermayesi Paketleri</h3>
-        <div id="capitalPacksList" class="packs-grid"></div>
-      </div>
+      <h3 class="group-title">📜 Hikaye Günlüğü</h3>
+      <div id="storyLogContainer" class="story-log-box"></div>
     </section>
   </main>
 
-  <!-- Alt Navigasyon Çubuğu -->
+  <!-- ALT MENÜ (4 NET SEKME) -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="tab-map">
-      <span class="nav-icon">🗺️</span>
-      <span>Harita</span>
+    <button class="nav-item active" data-target="tab-city">
+      <span class="nav-ico">🏙️</span>
+      <span>2D Şehir</span>
     </button>
-    <button class="nav-btn" data-tab="tab-business">
-      <span class="nav-icon">🏪</span>
+    <button class="nav-item" data-target="tab-shops">
+      <span class="nav-ico">🏪</span>
       <span>Dükkânlar</span>
     </button>
-    <button class="nav-btn" data-tab="tab-logistics">
-      <span class="nav-icon">🚚</span>
-      <span>Lojistik</span>
+    <button class="nav-item" data-target="tab-upgrades">
+      <span class="nav-ico">🛡️</span>
+      <span>Ekip & Filo</span>
     </button>
-    <button class="nav-btn" data-tab="tab-store">
-      <span class="nav-icon">👑</span>
-      <span>Yönetim</span>
+    <button class="nav-item" data-target="tab-story">
+      <span class="nav-ico">📖</span>
+      <span>Hikaye</span>
     </button>
   </nav>
 
-  <!-- İşletme Detay / Satın Alma Modalı -->
-  <div id="plotModal" class="modal-backdrop hidden">
-    <div class="modal-card">
-      <div class="modal-head">
+  <!-- BİNA YÖNETİM MODALI (2D HARİTADAN TIKLANINCA AÇILIR) -->
+  <div id="buildingModal" class="modal-overlay hidden">
+    <div class="modal-sheet">
+      <div class="modal-header">
         <div>
-          <span id="modalOwnerTag" class="owner-tag">Boş Parsel</span>
-          <h3 id="modalTitle">Köşe Başı Market</h3>
+          <span id="bModalTag" class="tag-pill">SENİN İŞLETMEN</span>
+          <h3 id="bModalName">Köşe Başı Büfe</h3>
         </div>
-        <button id="closeModalBtn" class="close-modal">✕</button>
+        <button id="closeBuildingModal" class="close-btn">✕</button>
       </div>
-
-      <div class="modal-body" id="modalBody"></div>
+      <div id="bModalContent"></div>
     </div>
   </div>
 
-  <!-- Çevrimdışı Asistan Kazanç Modalı -->
-  <div id="offlineModal" class="modal-backdrop hidden">
-    <div class="modal-card center-modal">
-      <div class="offline-badge">🤖 OTOMATİK YÖNETİCİ RAPORU</div>
-      <h3>Sen Yokken İmparatorluğun Çalıştı!</h3>
-      <p id="offlineTimeText">Çevrimdışı Süre: 0 dk</p>
-      <div class="offline-amount" id="offlineCashText">+₺0</div>
-      <button id="claimOfflineBtn" class="primary-action-btn full-w">Kasaya Aktar</button>
+  <!-- HİKAYE / KEMAL ABİ HARAÇ / BASKIN OLAY MODALI -->
+  <div id="eventModal" class="modal-overlay hidden">
+    <div class="modal-card drama-card">
+      <div class="event-header">
+        <canvas id="portraitCanvas" width="76" height="76" class="portrait-box"></canvas>
+        <div>
+          <span id="eventBadge" class="event-badge">HİKAYE OLAYI</span>
+          <h3 id="eventSpeaker">Kemal Abi</h3>
+          <p id="eventRole" class="event-role">Mahalle Ağası</p>
+        </div>
+      </div>
+      <p id="eventDialogue" class="event-dialogue">
+        "Hoş geldin yeğenim. Bu sokakta dükkân açmak yürek ister ama bizim de bir payımız var..."
+      </p>
+      <div id="eventChoices" class="event-choices"></div>
     </div>
   </div>
 
-  <!-- Bildirim Toast Alanı -->
-  <div id="toastContainer" class="toast-container"></div>
+  <!-- GÜN SONU ÖZETİ MODALI (YENİ GÜNE BAŞLA) -->
+  <div id="daySummaryModal" class="modal-overlay hidden">
+    <div class="modal-card summary-card">
+      <div class="summary-badge">🌙 GÜN SONU RAPORU</div>
+      <h3 id="summaryTitle">Gün 1 Tamamlandı!</h3>
+      <div class="summary-rows">
+        <div class="s-row"><span>Günlük Ticaret Geliri:</span><strong id="sumRev" class="pos">+₺0</strong></div>
+        <div class="s-row"><span>Koruma & İşletme Gideri:</span><strong id="sumExp" class="neg">-₺0</strong></div>
+        <div class="s-row total"><span>Yeni Gün Başlangıç Bonusu:</span><strong id="sumBonus" class="gold">+₺0</strong></div>
+      </div>
+      <button id="confirmNewDayBtn" class="big-action-btn primary">☀️ Yeni Güne Başla</button>
+    </div>
+  </div>
 
-  <script src="game.js"></script>
+  <!-- HIZLI BİLDİRİM TOAST -->
+  <div id="toastBox" class="toast-box"></div>
+
+  <script src="js/game.js"></script>
 </body>
 </html>
