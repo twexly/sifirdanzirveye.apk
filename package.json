@@ -1,0 +1,17 @@
+{
+  "name": "sifirdan-zirveye-apk",
+  "version": "1.0.0",
+  "description": "Sıfırdan Zirveye — Ticaret ve Şehir Kontrol Simülasyonu",
+  "scripts": {
+    "sync": "npx cap sync android",
+    "android": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/assets": "^3.0.5"
+  }
+}

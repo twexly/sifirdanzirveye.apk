@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1224" />
+  <title>Sıfırdan Zirveye — Ticaret & Şehir Kontrolü</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Üst Kaynak & Şehir Hakimiyeti Barı -->
+  <header class="top-hud">
+    <div class="hud-top-row">
+      <div class="brand-box">
+        <img src="logo.png" alt="Logo" class="app-logo" />
+        <div class="brand-text">
+          <span class="game-title">SIFIRDAN ZİRVEYE</span>
+          <span class="rank-badge" id="playerRank">Sokak Girişimcisi</span>
+        </div>
+      </div>
+
+      <div class="hud-actions">
+        <button id="soundToggleBtn" class="icon-pill" title="Ses Efektleri">🔊</button>
+        <button id="offlineReportBtn" class="icon-pill gold-glow" title="Asistan Raporu">🤖</button>
+      </div>
+    </div>
+
+    <div class="stats-strip">
+      <div class="stat-pill cash">
+        <span class="stat-label">NAKİT SERMAYE</span>
+        <span class="stat-val" id="cashDisplay">₺25.000</span>
+      </div>
+      <div class="stat-pill income">
+        <span class="stat-label">NET GELİR / SN</span>
+        <span class="stat-val" id="incomeDisplay">+₺120/sn</span>
+      </div>
+      <div class="stat-pill control">
+        <span class="stat-label">ŞEHİR KONTROLÜ</span>
+        <span class="stat-val" id="controlDisplay">%5</span>
+      </div>
+    </div>
+
+    <!-- Şehir Hakimiyet Çubuğu (Oyuncu vs Rakipler) -->
+    <div class="dominance-bar-wrap" title="Şehir Bölge Dağılımı">
+      <div id="domPlayer" class="dom-seg player" style="width: 5%"></div>
+      <div id="domRival1" class="dom-seg rival1" style="width: 25%"></div>
+      <div id="domRival2" class="dom-seg rival2" style="width: 20%"></div>
+      <div id="domRival3" class="dom-seg rival3" style="width: 15%"></div>
+      <div id="domNeutral" class="dom-seg neutral" style="width: 35%"></div>
+    </div>
+  </header>
+
+  <!-- Canlı Piyasa & Haber Bandı -->
+  <div class="ticker-bar">
+    <span class="ticker-tag">CANLI PİYASA</span>
+    <div class="ticker-scroll">
+      <span id="newsTickerText">Piyasa açıldı! İlk sokağındaki dükkânı büyüt ve rakiplerin fiyatını kırarak mahalleyi ele geçir.</span>
+    </div>
+  </div>
+
+  <!-- Ana Oyun Ekranları (Sekmeli Mobil Görünüm) -->
+  <main class="viewport">
+    <!-- SEKME 1: İNTERAKTİF ŞEHİR HARİTASI -->
+    <section id="tab-map" class="tab-view active">
+      <div class="district-selector" id="districtTabs"></div>
+
+      <div class="district-banner" id="districtBanner">
+        <div>
+          <h2 id="distName">Liman Mahallesi</h2>
+          <p id="distDesc">Düşük kira, hızlı nakit akışı ve başlangıç ticareti.</p>
+        </div>
+        <div class="dist-bonus-badge" id="distBonus">Talep: %100</div>
+      </div>
+
+      <!-- Görsel Şehir Haritası & Lojistik Hatları -->
+      <div class="city-map-container">
+        <svg id="logisticsSvg" class="logistics-overlay"></svg>
+        <div id="cityGrid" class="city-grid"></div>
+      </div>
+
+      <!-- Rakip Şirketler Durum Özeti -->
+      <div class="rivals-card">
+        <div class="card-header">
+          <h3>🏢 Canlı Piyasa Rakipleri</h3>
+          <span class="sub-hint">Fiyat kırarak paylarını çal!</span>
+        </div>
+        <div id="rivalsList" class="rivals-list"></div>
+      </div>
+    </section>
+
+    <!-- SEKME 2: İŞLETMELERİM & FİYAT SAVAŞI -->
+    <section id="tab-business" class="tab-view">
+      <div class="section-header-card">
+        <div>
+          <h2>🏪 İşletme & Fiyat Kontrolü</h2>
+          <p>Fiyat stratejini belirle: Rakiplerin fiyatını kırıp müşteriyi kendine çek!</p>
+        </div>
+        <div class="global-strategy-btns">
+          <button class="strat-btn" data-global-strat="undercut">⚔️ Tümünde Fiyat Kır</button>
+          <button class="strat-btn" data-global-strat="balanced">⚖️ Dengeli Piyasa</button>
+        </div>
+      </div>
+
+      <div id="ownedShopsList" class="shops-list"></div>
+    </section>
+
+    <!-- SEKME 3: DAĞITIM AĞI & LOJİSTİK -->
+    <section id="tab-logistics" class="tab-view">
+      <div class="section-header-card">
+        <div>
+          <h2>🚚 Dağıtım Ağı & Tedarik Zinciri</h2>
+          <p>Depo ve filo kurarak tüm dükkânlarının kâr marjını katla.</p>
+        </div>
+        <div class="logistics-multiplier-box">
+          <span>Ağ Çarpanı</span>
+          <strong id="logisticsMultDisplay">1.00x</strong>
+        </div>
+      </div>
+
+      <div id="logisticsUpgradesList" class="upgrades-list"></div>
+    </section>
+
+    <!-- SEKME 4: MAĞAZA, OTOMATİK ASİSTAN & ÖZEL HAKLAR -->
+    <section id="tab-store" class="tab-view">
+      <div class="section-header-card gold-border">
+        <div>
+          <h2>💎 Ticaret Merkezi & Özel İmtiyazlar</h2>
+          <p>Otomatik yönetici asistanlar, sermaye paketleri ve özel bölge lisansları.</p>
+        </div>
+      </div>
+
+      <div class="store-category">
+        <h3>🤖 Otomatik Yönetici Botları (Çevrimdışı Kazanç)</h3>
+        <div id="managersList" class="upgrades-list"></div>
+      </div>
+
+      <div class="store-category">
+        <h3>🗺️ Özel Şehir Haritası Hakları & İmtiyazlar</h3>
+        <div id="licensesList" class="upgrades-list"></div>
+      </div>
+
+      <div class="store-category">
+        <h3>💰 Başlangıç & Büyüme Sermayesi Paketleri</h3>
+        <div id="capitalPacksList" class="packs-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Alt Navigasyon Çubuğu -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="tab-map">
+      <span class="nav-icon">🗺️</span>
+      <span>Harita</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-business">
+      <span class="nav-icon">🏪</span>
+      <span>Dükkânlar</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-logistics">
+      <span class="nav-icon">🚚</span>
+      <span>Lojistik</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-store">
+      <span class="nav-icon">👑</span>
+      <span>Yönetim</span>
+    </button>
+  </nav>
+
+  <!-- İşletme Detay / Satın Alma Modalı -->
+  <div id="plotModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <span id="modalOwnerTag" class="owner-tag">Boş Parsel</span>
+          <h3 id="modalTitle">Köşe Başı Market</h3>
+        </div>
+        <button id="closeModalBtn" class="close-modal">✕</button>
+      </div>
+
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Çevrimdışı Asistan Kazanç Modalı -->
+  <div id="offlineModal" class="modal-backdrop hidden">
+    <div class="modal-card center-modal">
+      <div class="offline-badge">🤖 OTOMATİK YÖNETİCİ RAPORU</div>
+      <h3>Sen Yokken İmparatorluğun Çalıştı!</h3>
+      <p id="offlineTimeText">Çevrimdışı Süre: 0 dk</p>
+      <div class="offline-amount" id="offlineCashText">+₺0</div>
+      <button id="claimOfflineBtn" class="primary-action-btn full-w">Kasaya Aktar</button>
+    </div>
+  </div>
+
+  <!-- Bildirim Toast Alanı -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="game.js"></script>
+</body>
+</html>
